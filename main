@@ -1,0 +1,70 @@
+from tkinter import *
+from PIL import ImageTk, Image
+from pathlib import Path
+from tqdm import tqdm
+import time
+
+def Organize():
+    try:
+        path = Path(input("Enter the path of the folder you would like to organize: "))
+
+        target_file_extensions = {
+            "Images": [".jpg", ".jpeg", ".png", ".gif", ".bmp"],
+            "Videos": [".mp4", ".mov", ".webm", ".wmv", ".mpg", ".mpeg", ".mkv"],
+            "Documents": [".docx", ".pdf", ".xlsx"],
+            "Musics": [".mp3", ".msv", ".wav", ".wma"]
+        }
+
+        count_files = 0
+
+        for file in path.iterdir():
+            count_files += 1
+            if not file.is_file():
+                continue
+
+            file_extension = file.suffix.lower()
+            moved = False
+
+            for Folder, Extensions in target_file_extensions.items():
+                if file_extension in Extensions:
+                    folder_path = path / Folder
+                    folder_path.mkdir(exist_ok=True)
+                    destination = folder_path / file.name
+                    file.rename(destination)
+                    moved = True
+                    break
+
+            if not moved:
+                other_path = path / "Others"
+                other_path.mkdir(exist_ok=True)
+                destination = other_path / file.name
+                file.rename(destination)
+
+        for i in tqdm(range(int(count_files))):
+            time.sleep(0.05)  # Simulating a task
+        print(f"{count_files} files were organized")
+    except FileNotFoundError:
+        print("File not found")
+
+
+window = Tk()
+
+img_width = 100
+img_height = 100
+
+img = Image.open('folder.png')
+img = img.resize((img_width, img_height))
+photo = ImageTk.PhotoImage(img)
+
+
+button = Button(window,
+                text="File Organizer",
+                command=Organize,
+                font=("Comic Sans MS", 30, "bold"),
+                fg="White",
+                bg="black",
+                image=photo,
+                compound = "bottom")
+button.pack()
+
+window.mainloop()
